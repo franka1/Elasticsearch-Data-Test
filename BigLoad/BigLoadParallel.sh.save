@@ -1,0 +1,21 @@
+
+#! /bin/sh
+set -e
+BATCHES=300000
+BATCHSIZE=250000
+
+javac JSONGenerator.java
+
+load_batch() {
+	java JSONGenerator $(($1 *1000 )) > bigLoad$1.json;
+        curl -s -XPOST 'localhost:9200/testindex/feature/_bulk' --data-binary @bigLoad$1.json;
+        rm bigLoad$1.json;
+}
+
+export -f load_batch
+
+for i in {/Users/xelazeratul/Downloads/Bees\ the\ Set/A2\ \ Bee2\ \ C2.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Ah\ Muzen\ Cab.1.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Ah\ Muzen\ Cab.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Hivebuilder.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Hivemaiden.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Matriachs\ Demand.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Sentryman.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Warrior.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\ Worker.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee.1.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bee\'s\ Deck.txt /Users/xelazeratul/Downloads/Bees\ the\ Set/Buzz\ the\ Bee.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Bzzret\ The\ Noblest.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Defense\ Orders.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Entice\ with\ Honey.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Giant\ Bee\ Larva.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Hive.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Honey\ Nut\ Cheerios.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Honeybee.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Loaded\ Stingers.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Nicholas\ Cage.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Not\ The\ BEES.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Rally\ the\ Bees.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Serenity\ Honey\ Warden.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Swarm\ of\ Bees.jpg /Users/xelazeratul/Downloads/Bees\ the\ Set/Ultimate\ Stinger.jpg ..300000..1};
+	do sem -j8 load_batch $i;
+done;
+
+sem --wait
